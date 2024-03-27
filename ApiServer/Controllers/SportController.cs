@@ -1,5 +1,6 @@
 ﻿using ApiServer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,21 @@ namespace ApiServer.Controllers
             _olympicsContext = olympicsContext;
         }
 
-        [HttpGet]
-        public IEnumerable<Sport> Get()
-        {
-            return _olympicsContext.Sports;
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Sport>>> Get()
+        {
+            return await _olympicsContext.Sports.ToListAsync();
+
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Sport>> Get(int id)
+        {
+            var item = await _olympicsContext.Sports.FirstOrDefaultAsync(x => x.Id == id);
+            if (item == null)
+                return NotFound();
+            return new ObjectResult(item);
         }
     }
 }

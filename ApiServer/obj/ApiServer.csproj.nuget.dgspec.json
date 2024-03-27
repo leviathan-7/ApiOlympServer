@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj": {}
+    "C:\\Users\\Mike\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj": {
+    "C:\\Users\\Mike\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj",
+        "projectUniqueName": "C:\\Users\\Mike\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj",
         "projectName": "ApiServer",
-        "projectPath": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj",
-        "packagesPath": "C:\\Users\\1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\obj\\",
+        "projectPath": "C:\\Users\\Mike\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj",
+        "packagesPath": "C:\\Users\\Mike\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Mike\\Desktop\\ApiOlympServer\\ApiServer\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\1\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Mike\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -34,6 +38,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -65,7 +74,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -77,7 +87,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }
