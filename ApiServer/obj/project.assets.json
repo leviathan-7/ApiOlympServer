@@ -4598,11 +4598,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj",
+      "projectUniqueName": "C:\\Users\\1\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj",
       "projectName": "ApiServer",
-      "projectPath": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj",
+      "projectPath": "C:\\Users\\1\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj",
       "packagesPath": "C:\\Users\\1\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\obj\\",
+      "outputPath": "C:\\Users\\1\\Desktop\\ApiOlympServer\\ApiServer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\1\\AppData\\Roaming\\NuGet\\NuGet.Config",

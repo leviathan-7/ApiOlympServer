@@ -1,5 +1,6 @@
 ﻿using ApiServer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace ApiServer.Controllers
         [HttpGet]
         public IEnumerable<Event> Get()
         {
-            return _olympicsContext.Events;
+            return _olympicsContext.Events.Include(b => b.Sport);
 
         }
     }

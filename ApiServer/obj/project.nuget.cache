@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0OAle6UOMjohrVmp5Ru2CEETrB0C9QwXM7uEO0c2SJpkBKH81YlNrUQus9DAdO295TsXSDAY90Y29+7EbMLR4A==",
+  "dgSpecHash": "gtwFsXgEgcAYQdeOESrfR0BMNlwXv64bRB3BSVm4mcO/lAhNu1mBokeUMdMx/VKgVELSRSfoRYBdUltVlV/cNA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\1\\Desktop\\MvcServer\\ApiServer\\ApiServer.csproj",
+  "projectFilePath": "C:\\Users\\1\\Desktop\\ApiOlympServer\\ApiServer\\ApiServer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\1\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\1\\.nuget\\packages\\microsoft.aspnetcore.html.abstractions\\2.2.0\\microsoft.aspnetcore.html.abstractions.2.2.0.nupkg.sha512",
