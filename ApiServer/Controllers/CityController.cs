@@ -11,28 +11,29 @@ namespace ApiServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EventController : ControllerBase
+    public class CityController : ControllerBase
     {
-        private readonly ILogger<EventController> _logger;
+        private readonly ILogger<CityController> _logger;
         private readonly olympicsContext _olympicsContext;
 
 
-        public EventController(ILogger<EventController> logger, olympicsContext olympicsContext)
+        public CityController(ILogger<CityController> logger, olympicsContext olympicsContext)
         {
             _logger = logger;
             _olympicsContext = olympicsContext;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> Get()
+        public async Task<ActionResult<IEnumerable<City>>> Get()
         {
-            return await _olympicsContext.Events.Include(b => b.Sport).ToListAsync();
+            return await _olympicsContext.Cities.ToListAsync();
+
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> Get(int id)
+        public async Task<ActionResult<City>> Get(int id)
         {
-            var item = await _olympicsContext.Events.Include(b => b.Sport).FirstOrDefaultAsync(x => x.Id == id);
+            var item = await _olympicsContext.Cities.FirstOrDefaultAsync(x => x.Id == id);
             if (item == null)
                 return NotFound();
             return new ObjectResult(item);

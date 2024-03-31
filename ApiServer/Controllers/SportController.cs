@@ -23,11 +23,20 @@ namespace ApiServer.Controllers
             _olympicsContext = olympicsContext;
         }
 
-        [HttpGet]
-        public IEnumerable<Sport> Get()
-        {
-            return _olympicsContext.Sports.Include(b => b.Events);
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Sport>>> Get()
+        {
+            return await _olympicsContext.Sports.Include(b => b.Events).ToListAsync();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Sport>> Get(int id)
+        {
+            var item = await _olympicsContext.Sports.Include(b => b.Events).FirstOrDefaultAsync(x => x.Id == id);
+            if (item == null)
+                return NotFound();
+            return new ObjectResult(item);
         }
     }
 }
