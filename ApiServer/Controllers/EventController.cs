@@ -37,5 +37,41 @@ namespace ApiServer.Controllers
                 return NotFound();
             return new ObjectResult(item);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<Event>> Post(Event item)
+        {
+            if (item == null)
+                return BadRequest();
+
+            _olympicsContext.Events.Add(item);
+            await _olympicsContext.SaveChangesAsync();
+            return Ok(item);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<Event>> Put(Event item)
+        {
+            if (item == null)
+                return BadRequest();
+            if (!_olympicsContext.Events.Any(x => x.Id == item.Id))
+                return NotFound();
+
+            _olympicsContext.Update(item);
+            await _olympicsContext.SaveChangesAsync();
+            return Ok(item);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Event>> Delete(int id)
+        {
+            var item = _olympicsContext.Events.FirstOrDefault(x => x.Id == id);
+            if (item == null)
+                return NotFound();
+            _olympicsContext.Events.Remove(item);
+            await _olympicsContext.SaveChangesAsync();
+            return Ok(item);
+        }
     }
 }
+

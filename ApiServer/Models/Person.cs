@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -11,7 +12,7 @@ namespace ApiServer.Models
         {
             GamesCompetitors = new HashSet<GamesCompetitor>();
         }
-
+        [Key]
         public long Id { get; set; }
         public string FullName { get; set; }
         public string Gender { get; set; }

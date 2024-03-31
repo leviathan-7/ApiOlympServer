@@ -38,5 +38,40 @@ namespace ApiServer.Controllers
                 return NotFound();
             return new ObjectResult(item);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<City>> Post(City item)
+        {
+            if (item == null)
+                return BadRequest();
+
+            _olympicsContext.Cities.Add(item);
+            await _olympicsContext.SaveChangesAsync();
+            return Ok(item);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<City>> Put(City item)
+        {
+            if (item == null)
+                return BadRequest();
+            if (!_olympicsContext.Cities.Any(x => x.Id == item.Id))
+                return NotFound();
+
+            _olympicsContext.Update(item);
+            await _olympicsContext.SaveChangesAsync();
+            return Ok(item);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<City>> Delete(int id)
+        {
+            var item = _olympicsContext.Cities.FirstOrDefault(x => x.Id == id);
+            if (item == null)
+                return NotFound();
+            _olympicsContext.Cities.Remove(item);
+            await _olympicsContext.SaveChangesAsync();
+            return Ok(item);
+        }
     }
 }
