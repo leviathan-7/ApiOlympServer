@@ -69,6 +69,11 @@ namespace ApiServer.Controllers
             var item = _olympicsContext.Sports.FirstOrDefault(x => x.Id == id);
             if (item == null)
                 return NotFound();
+            foreach (var I in _olympicsContext.Events.Where(i => i.SportId == item.Id))
+            {
+                I.SportId = null;
+                _olympicsContext.Update(I);
+            } 
             _olympicsContext.Sports.Remove(item);
             await _olympicsContext.SaveChangesAsync();
             return Ok(item);
