@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,7 @@ namespace ApiServer.Controllers
             _olympicsContext = olympicsContext;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NocRegion>>> Get()
         {
@@ -30,6 +32,7 @@ namespace ApiServer.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<NocRegion>> Get(int id)
         {
@@ -39,6 +42,7 @@ namespace ApiServer.Controllers
             return new ObjectResult(item);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<NocRegion>> Post(NocRegion item)
         {
@@ -50,6 +54,7 @@ namespace ApiServer.Controllers
             return Ok(item);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<ActionResult<NocRegion>> Put(NocRegion item)
         {
@@ -63,6 +68,7 @@ namespace ApiServer.Controllers
             return Ok(item);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<NocRegion>> Delete(int id)
         {

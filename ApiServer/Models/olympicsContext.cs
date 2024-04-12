@@ -1,4 +1,5 @@
 ﻿using System;
+using ApiServer.TokenData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -17,6 +18,7 @@ namespace ApiServer.Models
         {
         }
 
+        public virtual DbSet<API_Person> API_Persons { get; set; }
         public virtual DbSet<City> Cities { get; set; }
         public virtual DbSet<CompetitorEvent> CompetitorEvents { get; set; }
         public virtual DbSet<Event> Events { get; set; }
@@ -40,6 +42,20 @@ namespace ApiServer.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<API_Person>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("api_person");
+
+                entity.Property(e => e.Login).HasColumnName("login");
+
+                entity.Property(e => e.Password).HasColumnName("password");
+
+                entity.Property(e => e.Role).HasColumnName("role");
+
+            });
+
             modelBuilder.Entity<City>(entity =>
             {
                 entity.ToTable("city");

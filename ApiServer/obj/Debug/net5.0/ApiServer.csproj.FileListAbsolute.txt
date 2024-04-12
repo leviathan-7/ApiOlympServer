@@ -128,3 +128,11 @@ C:\Users\1\Desktop\ApiOlympServer\ApiServer\obj\Debug\net5.0\ApiServer.dll
 C:\Users\1\Desktop\ApiOlympServer\ApiServer\obj\Debug\net5.0\ref\ApiServer.dll
 C:\Users\1\Desktop\ApiOlympServer\ApiServer\obj\Debug\net5.0\ApiServer.pdb
 C:\Users\1\Desktop\ApiOlympServer\ApiServer\obj\Debug\net5.0\ApiServer.genruntimeconfig.cache
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\1\Desktop\ApiOlympServer\ApiServer\bin\Debug\net5.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll

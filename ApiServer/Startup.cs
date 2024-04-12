@@ -13,6 +13,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using ApiServer.TokenData;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApiServer
 {
@@ -28,15 +32,66 @@ namespace ApiServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.RequireHttpsMetadata = false;
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            // укзывает, будет ли валидироваться издатель при валидации токена
+                            ValidateIssuer = true,
+                            // строка, представляющая издателя
+                            ValidIssuer = AuthOptions.ISSUER,
+
+                            // будет ли валидироваться потребитель токена
+                            ValidateAudience = true,
+                            // установка потребителя токена
+                            ValidAudience = AuthOptions.AUDIENCE,
+                            // будет ли валидироваться время существования
+                            ValidateLifetime = true,
+
+                            // установка ключа безопасности
+                            IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                            // валидация ключа безопасности
+                            ValidateIssuerSigningKey = true,
+                        };
+                    });
 
             services.AddControllers();
             IConfiguration config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
             services.AddDbContext<olympicsContext>();
+
+            services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<olympicsContext>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiServer", Version = "v1" });
+                c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                {
+                    Description = "ApiKey must appear in header",
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Scheme = "ApiKeyScheme"
+                });
+                var key = new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "ApiKey"
+                    },
+                    In = ParameterLocation.Header
+                };
+                var requirement = new OpenApiSecurityRequirement
+                {
+                     { key, new List<string>() }
+                };
+                c.AddSecurityRequirement(requirement);
+
             });
             services.AddControllersWithViews()
             .AddJsonOptions(options =>
@@ -58,6 +113,8 @@ namespace ApiServer
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,12 +24,14 @@ namespace ApiServer.Controllers
             _olympicsContext = olympicsContext;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Event>>> Get()
         {
             return await _olympicsContext.Events.Include(b => b.Sport).ToListAsync();
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> Get(int id)
         {
@@ -38,6 +41,7 @@ namespace ApiServer.Controllers
             return new ObjectResult(item);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Event>> Post(Event item)
         {
@@ -49,6 +53,7 @@ namespace ApiServer.Controllers
             return Ok(item);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<ActionResult<Event>> Put(Event item)
         {
@@ -62,6 +67,7 @@ namespace ApiServer.Controllers
             return Ok(item);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Event>> Delete(int id)
         {
