@@ -37,13 +37,14 @@ namespace ApiServer.Controllers
 
             var now = DateTime.UtcNow;
             // создаем JWT-токен
+            var sk = ExtendKeyLengthIfNeeded(AuthOptions.GetSymmetricSecurityKey(), 32);
             var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.ISSUER,
                     audience: AuthOptions.AUDIENCE,
                     notBefore: now,
                     claims: identity.Claims,
                     expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    signingCredentials: new SigningCredentials(sk, SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             var response = new
@@ -52,6 +53,17 @@ namespace ApiServer.Controllers
                 username = identity.Name
             };
             return Json(response);
+        }
+
+        SymmetricSecurityKey ExtendKeyLengthIfNeeded(SymmetricSecurityKey key, int minLenInBytes)
+        {
+            if (key != null && key.KeySize < (minLenInBytes * 8))
+            {
+                var newKey = new byte[minLenInBytes]; // zeros by default
+                key.Key.CopyTo(newKey, 0);
+                return new SymmetricSecurityKey(newKey);
+            }
+            return key;
         }
 
         [Authorize]

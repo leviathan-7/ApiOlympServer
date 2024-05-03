@@ -17,10 +17,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ApiServer.TokenData;
 using Microsoft.AspNetCore.Identity;
+using EntityGraphQL.AspNet;
+using GraphQL.Server.Ui.Playground;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiServer
 {
-    public class Startup
+    /*public class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -51,7 +54,7 @@ namespace ApiServer
                             ValidateLifetime = true,
 
                             // установка ключа безопасности
-                            IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                            IssuerSigningKey = ExtendKeyLengthIfNeeded(AuthOptions.GetSymmetricSecurityKey(), 32),
                             // валидация ключа безопасности
                             ValidateIssuerSigningKey = true,
                         };
@@ -62,7 +65,9 @@ namespace ApiServer
                 .AddJsonFile("appsettings.json")
                 .Build();
             services.AddDbContext<olympicsContext>();
-
+            //
+            services.AddGraphQLSchema<olympicsContext>();
+            //
             services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<olympicsContext>();
 
@@ -100,6 +105,17 @@ namespace ApiServer
             });
         }
 
+        SymmetricSecurityKey ExtendKeyLengthIfNeeded(SymmetricSecurityKey key, int minLenInBytes)
+        {
+            if (key != null && key.KeySize < (minLenInBytes * 8))
+            {
+                var newKey = new byte[minLenInBytes]; // zeros by default
+                key.Key.CopyTo(newKey, 0);
+                return new SymmetricSecurityKey(newKey);
+            }
+            return key;
+        }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -121,7 +137,47 @@ namespace ApiServer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                //
+                endpoints.MapGraphQL<olympicsContext>();
+                //
             });
+        }
+    }*/
+
+    public class Startup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // Again, just an example using EF but you do not have to
+            services.AddDbContext<olympicsContext>(opt => opt.UseInMemoryDatabase("olympics"));
+            // This registers a SchemaProvider<DemoContext> and uses reflection to build the schema with default options
+            services.AddGraphQLSchema<olympicsContext>();
+            services.AddAuthentication();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("authorized", policy => policy.RequireAuthenticatedUser());
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, olympicsContext db)
+        {
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseGraphQLPlayground();
+
+            app.UseEndpoints(endpoints =>
+            {
+                // defaults to /graphql endpoint
+                endpoints.MapGraphQL<olympicsContext>(configureEndpoint: (endpoint) => {
+                    endpoint.RequireAuthorization("authorized");
+                    // do other things with endpoint
+                });
+            });
+
         }
     }
 }
+
+
