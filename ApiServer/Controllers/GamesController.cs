@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using EntityGraphQL.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,78 +7,52 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ApiServer.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class GamesController : ControllerBase
+    public class GameMutations
     {
-        private readonly ILogger<GamesController> _logger;
-        private readonly olympicsContext _olympicsContext;
-
-
-        public GamesController(ILogger<GamesController> logger, olympicsContext olympicsContext)
+        [GraphQLMutation("Add a new Game to the system")]
+        public Expression<Func<olympicsContext, Game>> AddNewGame(olympicsContext db, long id, long gamesYear, string gamesName, string season)
         {
-            _logger = logger;
-            _olympicsContext = olympicsContext;
+            var item = new Game
+            {
+                Id = id,
+                GamesYear = gamesYear,
+                GamesName = gamesName,
+                Season = season,
+            };
+            db.Games.Add(item);
+            db.SaveChanges();
+
+            return (ctx) => ctx.Games.First(p => p.Id == item.Id);
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Game>>> Get()
+        [GraphQLMutation("Update Game in the system")]
+        public Expression<Func<olympicsContext, Game>> UpdateGame(olympicsContext db, long id, long gamesYear, string gamesName, string season)
         {
-            return await _olympicsContext.Games.ToListAsync();
-
+            if (!db.Games.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Games.First(x => x.Id == id);
+            item.GamesYear = gamesYear;
+            item.GamesName = gamesName;
+            item.Season = season;
+            db.Update(item);
+            db.SaveChanges();
+            return (ctx) => ctx.Games.First(p => p.Id == id);
         }
 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> Get(int id)
+        [GraphQLMutation("Delete Game in the system")]
+        public Expression<Func<olympicsContext, Game>> DeleteGame(olympicsContext db, long id)
         {
-            var item = await _olympicsContext.Games.FirstOrDefaultAsync(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            return new ObjectResult(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public async Task<ActionResult<Game>> Post(Game item)
-        {
-            if (item == null)
-                return BadRequest();
-
-            _olympicsContext.Games.Add(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<ActionResult<Game>> Put(Game item)
-        {
-            if (item == null)
-                return BadRequest();
-            if (!_olympicsContext.Games.Any(x => x.Id == item.Id))
-                return NotFound();
-
-            _olympicsContext.Update(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Game>> Delete(int id)
-        {
-            var item = _olympicsContext.Games.FirstOrDefault(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            _olympicsContext.Games.Remove(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
+            if (!db.Games.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Games.First(x => x.Id == id);
+            db.Remove(item);
+            db.SaveChanges();
+            return (ctx) => null;
         }
     }
 }

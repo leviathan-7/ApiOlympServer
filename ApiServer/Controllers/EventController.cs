@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using EntityGraphQL.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,77 +7,50 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ApiServer.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class EventController : ControllerBase
+    public class EventMutations
     {
-        private readonly ILogger<EventController> _logger;
-        private readonly olympicsContext _olympicsContext;
-
-
-        public EventController(ILogger<EventController> logger, olympicsContext olympicsContext)
+        [GraphQLMutation("Add a new Event to the system")]
+        public Expression<Func<olympicsContext, Event>> AddNewEvent(olympicsContext db, long id, long sportId, string eventName)
         {
-            _logger = logger;
-            _olympicsContext = olympicsContext;
+            var item = new Event
+            {
+                Id = id,
+                SportId = sportId,
+                EventName = eventName,
+            };
+            db.Events.Add(item);
+            db.SaveChanges();
+
+            return (ctx) => ctx.Events.First(p => p.Id == item.Id);
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> Get()
+        [GraphQLMutation("Update Event in the system")]
+        public Expression<Func<olympicsContext, Event>> UpdateEvent(olympicsContext db, long id, long sportId, string eventName)
         {
-            return await _olympicsContext.Events.Include(b => b.Sport).ToListAsync();
+            if (!db.Events.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Events.First(x => x.Id == id);
+            item.SportId = sportId;
+            item.EventName = eventName;
+            db.Update(item);
+            db.SaveChanges();
+            return (ctx) => ctx.Events.First(p => p.Id == id);
         }
 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> Get(int id)
+        [GraphQLMutation("Delete Event in the system")]
+        public Expression<Func<olympicsContext, Game>> DeleteEvent(olympicsContext db, long id)
         {
-            var item = await _olympicsContext.Events.Include(b => b.Sport).FirstOrDefaultAsync(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            return new ObjectResult(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public async Task<ActionResult<Event>> Post(Event item)
-        {
-            if (item == null)
-                return BadRequest();
-
-            _olympicsContext.Events.Add(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<ActionResult<Event>> Put(Event item)
-        {
-            if (item == null)
-                return BadRequest();
-            if (!_olympicsContext.Events.Any(x => x.Id == item.Id))
-                return NotFound();
-
-            _olympicsContext.Update(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Event>> Delete(int id)
-        {
-            var item = _olympicsContext.Events.FirstOrDefault(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            _olympicsContext.Events.Remove(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
+            if (!db.Events.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Events.First(x => x.Id == id);
+            db.Remove(item);
+            db.SaveChanges();
+            return (ctx) => null;
         }
     }
 }

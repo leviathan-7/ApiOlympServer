@@ -23,6 +23,8 @@ using Microsoft.EntityFrameworkCore;
 using GraphQL.Types;
 using GraphQL;
 using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
+using EntityGraphQL.Schema;
+using ApiServer.Controllers;
 
 namespace ApiServer
 {
@@ -163,6 +165,18 @@ namespace ApiServer
 
             // This registers a SchemaProvider<DemoContext> and uses reflection to build the schema with default options
             services.AddGraphQLSchema<olympicsContext>();
+
+            var schema = SchemaBuilder.FromObject<olympicsContext>();
+            //
+            schema.AddMutationsFrom<CityMutations>();
+            schema.AddMutationsFrom<NocRegionMutations>();
+            schema.AddMutationsFrom<SportMutations>();
+            schema.AddMutationsFrom<PersonMutations>();
+            schema.AddMutationsFrom<GameMutations>();
+            schema.AddMutationsFrom<EventMutations>();
+            //
+            services.AddSingleton(schema);
+
             services.AddAuthentication();
             services.AddAuthorization(options =>
             {

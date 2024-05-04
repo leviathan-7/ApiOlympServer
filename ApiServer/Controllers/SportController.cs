@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using EntityGraphQL.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,82 +7,53 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ApiServer.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class SportController : ControllerBase
+    public class SportMutations
     {
-        private readonly ILogger<SportController> _logger;
-        private readonly olympicsContext _olympicsContext;
-
-
-        public SportController(ILogger<SportController> logger, olympicsContext olympicsContext)
+        [GraphQLMutation("Add a new Sport to the system")]
+        public Expression<Func<olympicsContext, Sport>> AddNewSport(olympicsContext db, long id, string sportName)
         {
-            _logger = logger;
-            _olympicsContext = olympicsContext;
+            var item = new Sport
+            {
+                Id = id,
+                SportName = sportName,
+            };
+            db.Sports.Add(item);
+            db.SaveChanges();
+
+            return (ctx) => ctx.Sports.First(p => p.Id == item.Id);
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sport>>> Get()
+        [GraphQLMutation("Update Sport in the system")]
+        public Expression<Func<olympicsContext, Sport>> UpdateSport(olympicsContext db, long id, string sportName)
         {
-            return await _olympicsContext.Sports.Include(b => b.Events).ToListAsync();
+            if (!db.Sports.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Sports.First(x => x.Id == id);
+            item.SportName = sportName;
+            db.Update(item);
+            db.SaveChanges();
+            return (ctx) => ctx.Sports.First(p => p.Id == id);
         }
 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Sport>> Get(int id)
+        [GraphQLMutation("Delete Sport in the system")]
+        public Expression<Func<olympicsContext, Sport>> DeleteSport(olympicsContext db, long id)
         {
-            var item = await _olympicsContext.Sports.Include(b => b.Events).FirstOrDefaultAsync(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            return new ObjectResult(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public async Task<ActionResult<Sport>> Post(Sport item)
-        {
-            if (item == null)
-                return BadRequest();
-
-            _olympicsContext.Sports.Add(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<ActionResult<Sport>> Put(Sport item)
-        {
-            if (item == null)
-                return BadRequest();
-            if (!_olympicsContext.Sports.Any(x => x.Id == item.Id))
-                return NotFound();
-
-            _olympicsContext.Update(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Sport>> Delete(int id)
-        {
-            var item = _olympicsContext.Sports.FirstOrDefault(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            foreach (var I in _olympicsContext.Events.Where(i => i.SportId == item.Id))
+            if (!db.Sports.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Sports.First(x => x.Id == id);
+            foreach (var I in db.Events.Where(i => i.SportId == id))
             {
                 I.SportId = null;
-                _olympicsContext.Update(I);
-            } 
-            _olympicsContext.Sports.Remove(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
+                db.Update(I);
+            }
+            db.Remove(item);
+            db.SaveChanges();
+            return (ctx) => null;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using EntityGraphQL.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,78 +7,48 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ApiServer.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class CityController : ControllerBase
+    public class CityMutations
     {
-        private readonly ILogger<CityController> _logger;
-        private readonly olympicsContext _olympicsContext;
-
-
-        public CityController(ILogger<CityController> logger, olympicsContext olympicsContext)
+        [GraphQLMutation("Add a new City to the system")]
+        public Expression<Func<olympicsContext, City>> AddNewCity(olympicsContext db, long id, string cityName)
         {
-            _logger = logger;
-            _olympicsContext = olympicsContext;
+            var item = new City
+            {
+                Id = id,
+                CityName = cityName,
+            };
+            db.Cities.Add(item);
+            db.SaveChanges();
+
+            return (ctx) => ctx.Cities.First(p => p.Id == item.Id);
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<City>>> Get()
+        [GraphQLMutation("Update City in the system")]
+        public Expression<Func<olympicsContext, City>> UpdateCity(olympicsContext db, long id, string cityName)
         {
-            return await _olympicsContext.Cities.ToListAsync();
-
+            if (!db.Cities.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Cities.First(x => x.Id == id);
+            item.CityName = cityName;
+            db.Update(item);
+            db.SaveChanges();
+            return (ctx) => ctx.Cities.First(p => p.Id == id);
         }
 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<City>> Get(int id)
+        [GraphQLMutation("Delete City in the system")]
+        public Expression<Func<olympicsContext, City>> DeleteCity(olympicsContext db, long id)
         {
-            var item = await _olympicsContext.Cities.FirstOrDefaultAsync(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            return new ObjectResult(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public async Task<ActionResult<City>> Post(City item)
-        {
-            if (item == null)
-                return BadRequest();
-
-            _olympicsContext.Cities.Add(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<ActionResult<City>> Put(City item)
-        {
-            if (item == null)
-                return BadRequest();
-            if (!_olympicsContext.Cities.Any(x => x.Id == item.Id))
-                return NotFound();
-
-            _olympicsContext.Update(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<City>> Delete(int id)
-        {
-            var item = _olympicsContext.Cities.FirstOrDefault(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            _olympicsContext.Cities.Remove(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
+            if (!db.Cities.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.Cities.First(x => x.Id == id);
+            db.Remove(item);
+            db.SaveChanges();
+            return (ctx) => null;
         }
     }
 }

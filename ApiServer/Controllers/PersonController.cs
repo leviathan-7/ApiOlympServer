@@ -1,4 +1,5 @@
 ﻿using ApiServer.Models;
+using EntityGraphQL.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,78 +7,54 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ApiServer.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class PersonController : ControllerBase
+    public class PersonMutations
     {
-        private readonly ILogger<PersonController> _logger;
-        private readonly olympicsContext _olympicsContext;
-
-
-        public PersonController(ILogger<PersonController> logger, olympicsContext olympicsContext)
+        [GraphQLMutation("Add a new Person to the system")]
+        public Expression<Func<olympicsContext, Person>> AddNewPerson(olympicsContext db, long id, string fullName, string gender, long height, long weight)
         {
-            _logger = logger;
-            _olympicsContext = olympicsContext;
+            var item = new Person
+            {
+                Id = id,
+                FullName = fullName,
+                Gender = gender,
+                Height = height,
+                Weight = weight,
+            };
+            db.People.Add(item);
+            db.SaveChanges();
+
+            return (ctx) => ctx.People.First(p => p.Id == item.Id);
         }
 
-        /*[Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Person>>> Get()
+        [GraphQLMutation("Update Person in the system")]
+        public Expression<Func<olympicsContext, Person>> UpdatePerson(olympicsContext db, long id, string fullName, string gender, long height, long weight)
         {
-            return await _olympicsContext.People.ToListAsync();
-
-        }*/
-
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Person>> Get(int id)
-        {
-            var item = await _olympicsContext.People.Include(b => b.GamesCompetitors).FirstOrDefaultAsync(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            return new ObjectResult(item);
+            if (!db.People.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.People.First(x => x.Id == id);
+            item.FullName = fullName;
+            item.Gender = gender;
+            item.Height = height;
+            item.Weight = weight;
+            db.Update(item);
+            db.SaveChanges();
+            return (ctx) => ctx.People.First(p => p.Id == id);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public async Task<ActionResult<Person>> Post(Person item)
+        [GraphQLMutation("Delete Person in the system")]
+        public Expression<Func<olympicsContext, Person>> DeletePerson(olympicsContext db, long id)
         {
-            if (item == null)
-                return BadRequest();
-
-            _olympicsContext.People.Add(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<ActionResult<Person>> Put(Person item)
-        {
-            if (item == null)
-                return BadRequest();
-            if (!_olympicsContext.People.Any(x => x.Id == item.Id))
-                return NotFound();
-
-            _olympicsContext.Update(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Person>> Delete(int id)
-        {
-            var item = _olympicsContext.People.FirstOrDefault(x => x.Id == id);
-            if (item == null)
-                return NotFound();
-            _olympicsContext.People.Remove(item);
-            await _olympicsContext.SaveChangesAsync();
-            return Ok(item);
+            if (!db.People.Any(x => x.Id == id))
+                return (ctx) => null;
+            var item = db.People.First(x => x.Id == id);
+            db.Remove(item);
+            db.SaveChanges();
+            return (ctx) => null;
         }
     }
 }
