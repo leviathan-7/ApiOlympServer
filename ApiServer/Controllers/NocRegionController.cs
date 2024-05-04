@@ -17,6 +17,8 @@ namespace ApiServer.Controllers
         [GraphQLMutation("Add a new NocRegion to the system")]
         public Expression<Func<olympicsContext, NocRegion>> AddNewNocRegion(olympicsContext db, long id, string noc, string regionName)
         {
+            if (db.NocRegions.Any(x => x.Id == id))
+                return (ctx) => null;
             var item = new NocRegion
             {
                 Id = id,
@@ -50,7 +52,7 @@ namespace ApiServer.Controllers
             var item = db.NocRegions.First(x => x.Id == id);
             db.Remove(item);
             db.SaveChanges();
-            return (ctx) => null;
+            return (ctx) => item;
         }
     }
 }

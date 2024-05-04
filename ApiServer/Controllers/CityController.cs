@@ -17,6 +17,8 @@ namespace ApiServer.Controllers
         [GraphQLMutation("Add a new City to the system")]
         public Expression<Func<olympicsContext, City>> AddNewCity(olympicsContext db, long id, string cityName)
         {
+            if (db.Cities.Any(x => x.Id == id))
+                return (ctx) => null;
             var item = new City
             {
                 Id = id,
@@ -48,7 +50,7 @@ namespace ApiServer.Controllers
             var item = db.Cities.First(x => x.Id == id);
             db.Remove(item);
             db.SaveChanges();
-            return (ctx) => null;
+            return (ctx) => item;
         }
     }
 }

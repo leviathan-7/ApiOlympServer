@@ -17,6 +17,8 @@ namespace ApiServer.Controllers
         [GraphQLMutation("Add a new Person to the system")]
         public Expression<Func<olympicsContext, Person>> AddNewPerson(olympicsContext db, long id, string fullName, string gender, long height, long weight)
         {
+            if (db.People.Any(x => x.Id == id))
+                return (ctx) => null;
             var item = new Person
             {
                 Id = id,
@@ -54,7 +56,7 @@ namespace ApiServer.Controllers
             var item = db.People.First(x => x.Id == id);
             db.Remove(item);
             db.SaveChanges();
-            return (ctx) => null;
+            return (ctx) => item;
         }
     }
 }

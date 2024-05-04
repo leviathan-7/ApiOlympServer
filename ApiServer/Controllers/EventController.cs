@@ -17,6 +17,8 @@ namespace ApiServer.Controllers
         [GraphQLMutation("Add a new Event to the system")]
         public Expression<Func<olympicsContext, Event>> AddNewEvent(olympicsContext db, long id, long sportId, string eventName)
         {
+            if (db.Events.Any(x => x.Id == id))
+                return (ctx) => null;
             var item = new Event
             {
                 Id = id,
@@ -43,14 +45,14 @@ namespace ApiServer.Controllers
         }
 
         [GraphQLMutation("Delete Event in the system")]
-        public Expression<Func<olympicsContext, Game>> DeleteEvent(olympicsContext db, long id)
+        public Expression<Func<olympicsContext, Event>> DeleteEvent(olympicsContext db, long id)
         {
             if (!db.Events.Any(x => x.Id == id))
                 return (ctx) => null;
             var item = db.Events.First(x => x.Id == id);
             db.Remove(item);
             db.SaveChanges();
-            return (ctx) => null;
+            return (ctx) => item;
         }
     }
 }

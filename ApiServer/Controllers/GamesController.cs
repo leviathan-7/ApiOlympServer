@@ -17,6 +17,8 @@ namespace ApiServer.Controllers
         [GraphQLMutation("Add a new Game to the system")]
         public Expression<Func<olympicsContext, Game>> AddNewGame(olympicsContext db, long id, long gamesYear, string gamesName, string season)
         {
+            if (db.Games.Any(x => x.Id == id))
+                return (ctx) => null;
             var item = new Game
             {
                 Id = id,
@@ -52,7 +54,7 @@ namespace ApiServer.Controllers
             var item = db.Games.First(x => x.Id == id);
             db.Remove(item);
             db.SaveChanges();
-            return (ctx) => null;
+            return (ctx) => item;
         }
     }
 }
