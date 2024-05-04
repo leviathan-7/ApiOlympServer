@@ -159,11 +159,7 @@ namespace ApiServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Again, just an example using EF but you do not have to
-            //services.AddDbContext<olympicsContext>(opt => opt.UseInMemoryDatabase("olympics"));
-
-            services.AddDbContext<olympicsContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddEntityFrameworkSqlite().AddDbContext<olympicsContext>();
 
             // This registers a SchemaProvider<DemoContext> and uses reflection to build the schema with default options
             services.AddGraphQLSchema<olympicsContext>();
@@ -193,11 +189,6 @@ namespace ApiServer
 
             app.UseEndpoints(endpoints =>
             {
-                // defaults to /graphql endpoint
-                /*endpoints.MapGraphQL<olympicsContext>(configureEndpoint: (endpoint) => {
-                    endpoint.RequireAuthorization("authorized");
-                    // do other things with endpoint
-                });*/
                 endpoints.MapGraphQL<olympicsContext>();
             });
         }
