@@ -160,7 +160,11 @@ namespace ApiServer
         public void ConfigureServices(IServiceCollection services)
         {
             // Again, just an example using EF but you do not have to
-            services.AddDbContext<olympicsContext>(opt => opt.UseInMemoryDatabase("olympics"));
+            //services.AddDbContext<olympicsContext>(opt => opt.UseInMemoryDatabase("olympics"));
+
+            services.AddDbContext<olympicsContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             // This registers a SchemaProvider<DemoContext> and uses reflection to build the schema with default options
             services.AddGraphQLSchema<olympicsContext>();
             services.AddAuthentication();
