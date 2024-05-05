@@ -17,5 +17,15 @@ namespace ApiServer.TokenData
         {
             return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(KEY));
         }
+        public static SymmetricSecurityKey ExtendKeyLengthIfNeeded(SymmetricSecurityKey key, int minLenInBytes)
+        {
+            if (key != null && key.KeySize < (minLenInBytes * 8))
+            {
+                var newKey = new byte[minLenInBytes]; // zeros by default
+                key.Key.CopyTo(newKey, 0);
+                return new SymmetricSecurityKey(newKey);
+            }
+            return key;
+        }
     }
 }

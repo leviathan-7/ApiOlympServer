@@ -47,16 +47,46 @@ namespace ApiServer
 
             var schema = SchemaBuilder.FromObject<olympicsContext>();
             //
+            schema.UpdateType<API_Person>(personType =>
+            {
+                personType.RemoveField("password");
+                personType.RemoveField("role");
+            });
+            //
             schema.AddMutationsFrom<CityMutations>();
             schema.AddMutationsFrom<NocRegionMutations>();
             schema.AddMutationsFrom<SportMutations>();
             schema.AddMutationsFrom<PersonMutations>();
             schema.AddMutationsFrom<GameMutations>();
             schema.AddMutationsFrom<EventMutations>();
+            schema.AddMutationsFrom<APIMutations>();
             //
             services.AddSingleton(schema);
 
-            services.AddAuthentication();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.RequireHttpsMetadata = false;
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            // укзывает, будет ли валидироваться издатель при валидации токена
+                            ValidateIssuer = true,
+                            // строка, представляющая издателя
+                            ValidIssuer = AuthOptions.ISSUER,
+
+                            // будет ли валидироваться потребитель токена
+                            ValidateAudience = true,
+                            // установка потребителя токена
+                            ValidAudience = AuthOptions.AUDIENCE,
+                            // будет ли валидироваться время существования
+                            ValidateLifetime = true,
+
+                            // установка ключа безопасности
+                            IssuerSigningKey = AuthOptions.ExtendKeyLengthIfNeeded(AuthOptions.GetSymmetricSecurityKey(), 32),
+                            // валидация ключа безопасности
+                            ValidateIssuerSigningKey = true,
+                        };
+                    });
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("authorized", policy => policy.RequireAuthenticatedUser());
